@@ -7,15 +7,19 @@ const io = require("socket.io")(8800, {
 
   let users = [];
 
-  io.on("connection", (socket) => {
-    console.log('connection', socket.id); 
+  function addUser(userId, socket) {
+    const usersId = !users.some(user => user.userId === userId) && users.push({  userId: userId, socket: socket });
+    console.log(usersId);
+    return usersId
+  }
 
-    // let message = "Hello this is socket server!";
-    // io.emit("welcome", message);
+  io.on("connection", (socket) => {
+    console.log('connection'); 
+
 
     socket.on("addUser", userId => {
-      console.log('addUser', userId);
-      users.push(userId);
+      addUser(userId, socket.id);
+      io.emit("getUser", users);
     })
 
 
