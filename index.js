@@ -13,6 +13,10 @@ const io = require("socket.io")(8800, {
     return usersId
   }
 
+  function removeUser(socketId) {
+    users = users.filter(user => user.userId !== socketId);
+  }
+
   io.on("connection", (socket) => {
     console.log('connection'); 
 
@@ -24,6 +28,8 @@ const io = require("socket.io")(8800, {
 
 
     socket.on("disconnect", (reason) => {
-      console.log("disconnect", reason);
+      console.log("a user disconnected", reason);
+      removeUser(socket.id);
+      io.emit("getUser", users);
     });
 });
