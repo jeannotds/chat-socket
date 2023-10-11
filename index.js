@@ -17,23 +17,53 @@
 
   //Remove users connected to the server
   function removeUser(socketId) {
-    users = users.filter(user => user.userId !== socketId);
+    users = users.filter((user) => user.socketId !== socketId);
+    return users
   }
 
-  //Connection socket and action
+  //get user
+  function getUser(userId) {
+    return users.find((user) => user.userId === userId);
+  } 
+
+
+
+  //When user is connected to the server
   io.on("connection", (socket) => {
     console.log('connection'); 
 
     //Add user to socket
     socket.on("addUser", userId => {
       addUser(userId, socket.id);
-      io.emit("getUser", users);
+      io.emit("getUsers", users);
     })
 
-    //Disconnect socket and Remove user disconnected
-    socket.on("disconnect", (reason) => {
-      console.log("a user disconnected", reason);
+
+
+    //Send and get message
+    socket.on("sendMessage", ({ senderId, receiverId, text }) => {
+        const user = getUser(receiverId);
+        console.log('user : ', user);
+
+        console.log("sender: ", senderId);
+        console.log("receiver : ", receiverId);
+        console.log("message : ", text);
+
+        // Send to one user
+        io.to(user?.socket).emit("getMessage", {
+          senderId, text, receiverId
+        })
+    })
+
+
+
+    //When user is disconnected from server
+    socket.on("disconnect", () => {
+      console.log("a user disconnected");
+
+      // remove user disconnected
       removeUser(socket.id);
+
       //Get user connected without disconnected
       io.emit("getUser", users);
     });
