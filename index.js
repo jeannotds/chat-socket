@@ -11,7 +11,6 @@
   //Get users connected to the server
   function addUser(userId, socket) {
     const usersId = !users.some(user => user.userId === userId) && users.push({  userId: userId, socket: socket });
-    console.log(usersId);
     return usersId
   }
 
@@ -43,11 +42,6 @@
     //Send and get message
     socket.on("sendMessage", ({ senderId, receiverId, text }) => {
         const user = getUser(receiverId);
-        console.log('user : ', user);
-
-        console.log("sender: ", senderId);
-        console.log("receiver : ", receiverId);
-        console.log("message : ", text);
 
         // Send to one user
         io.to(user?.socket).emit("getMessage", {
